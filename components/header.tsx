@@ -20,7 +20,8 @@ export function Header() {
       <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
         <Link
           href="/"
-          className="text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
+          className="shine text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
+          data-text="Vladyslav Kovalchuk"
         >
           Vladyslav Kovalchuk
         </Link>
