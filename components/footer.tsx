@@ -1,9 +1,10 @@
 import Link from "next/link";
 
 const links = [
-  { href: "mailto:hello@vladkovalchuk.dev", label: "Email" },
-  { href: "https://github.com/vladyslav-kovalchuk", label: "GitHub" },
-  { href: "https://linkedin.com/in/vladyslav-kovalchuk", label: "LinkedIn" },
+  { href: "mailto:prostoandrei9@gmail.com", label: "Email" },
+  { href: "https://github.com/vladkvlchk", label: "GitHub" },
+  { href: "https://www.linkedin.com/in/vladkvlchk", label: "LinkedIn" },
+  { href: "https://www.codewars.com/users/vladkvlchk", label: "Codewars" },
 ] as const;
 
 export function Footer() {

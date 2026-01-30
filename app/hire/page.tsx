@@ -87,32 +87,43 @@ export default function HirePage() {
             <li>
               <span className="text-zinc-400 dark:text-zinc-500">Email</span>{" "}
               <a
-                href="mailto:hello@vladkovalchuk.dev"
+                href="mailto:prostoandrei9@gmail.com"
                 className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:decoration-zinc-900 dark:hover:decoration-zinc-100 transition-colors"
               >
-                hello@vladkovalchuk.dev
+                prostoandrei9@gmail.com
               </a>
             </li>
             <li>
               <span className="text-zinc-400 dark:text-zinc-500">GitHub</span>{" "}
               <a
-                href="https://github.com/vladyslav-kovalchuk"
+                href="https://github.com/vladkvlchk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:decoration-zinc-900 dark:hover:decoration-zinc-100 transition-colors"
               >
-                vladyslav-kovalchuk
+                vladkvlchk
               </a>
             </li>
             <li>
               <span className="text-zinc-400 dark:text-zinc-500">LinkedIn</span>{" "}
               <a
-                href="https://linkedin.com/in/vladyslav-kovalchuk"
+                href="https://www.linkedin.com/in/vladkvlchk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:decoration-zinc-900 dark:hover:decoration-zinc-100 transition-colors"
               >
-                vladyslav-kovalchuk
+                vladkvlchk
+              </a>
+            </li>
+            <li>
+              <span className="text-zinc-400 dark:text-zinc-500">Codewars</span>{" "}
+              <a
+                href="https://www.codewars.com/users/vladkvlchk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:decoration-zinc-900 dark:hover:decoration-zinc-100 transition-colors"
+              >
+                vladkvlchk
               </a>
             </li>
           </ul>
