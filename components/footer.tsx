@@ -5,6 +5,7 @@ const links = [
   { href: "https://github.com/vladkvlchk", label: "GitHub" },
   { href: "https://www.linkedin.com/in/vladkvlchk", label: "LinkedIn" },
   { href: "https://www.codewars.com/users/vladkvlchk", label: "Codewars" },
+  { href: "https://t.me/vlad_kvlchk", label: "Telegram" },
 ] as const;
 
 export function Footer() {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cases, getCaseBySlug } from "@/data/cases";
@@ -49,6 +50,53 @@ export default async function CaseStudyPage({ params }: PageProps) {
           </li>
         ))}
       </ul>
+
+      {study.links && study.links.length > 0 && (
+        <div className="mt-4 flex gap-4">
+          {study.links.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-zinc-900 dark:text-zinc-100 underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:decoration-zinc-900 dark:hover:decoration-zinc-100 transition-colors"
+            >
+              {link.label} {"\u2197"}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {study.image && (
+        typeof study.image === "string" ? (
+          <div className="mt-8 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <Image
+              src={study.image}
+              alt={`${study.title} screenshot`}
+              width={1520}
+              height={740}
+              className="w-full"
+            />
+          </div>
+        ) : (
+          <div className="mt-8 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <Image
+              src={study.image.light}
+              alt={`${study.title} screenshot`}
+              width={1520}
+              height={740}
+              className="w-full block dark:hidden"
+            />
+            <Image
+              src={study.image.dark}
+              alt={`${study.title} screenshot`}
+              width={1520}
+              height={740}
+              className="w-full hidden dark:block"
+            />
+          </div>
+        )
+      )}
 
       <div className="mt-12 space-y-12">
         <CaseSection title="Problem">

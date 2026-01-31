@@ -126,6 +126,17 @@ export default function HirePage() {
                 vladkvlchk
               </a>
             </li>
+            <li>
+              <span className="text-zinc-400 dark:text-zinc-500">Telegram</span>{" "}
+              <a
+                href="https://t.me/vlad_kvlchk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:decoration-zinc-900 dark:hover:decoration-zinc-100 transition-colors"
+              >
+                vlad_kvlchk
+              </a>
+            </li>
           </ul>
         </div>
         <div className="mt-10">

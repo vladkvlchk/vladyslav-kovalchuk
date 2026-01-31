@@ -3,6 +3,8 @@ export interface CaseStudy {
   title: string;
   summary: string;
   techStack: string[];
+  links?: { label: string; href: string }[];
+  image?: string | { light: string; dark: string };
   problem: string;
   constraints: string[];
   solution: string;
@@ -12,40 +14,50 @@ export interface CaseStudy {
 
 export const cases: CaseStudy[] = [
   {
-    slug: "design-system-fintech",
-    title: "Unifying UI across a fragmented fintech platform",
+    slug: "web3-chat",
+    title: "Building a decentralized chat to learn Web3 from the ground up",
     summary:
-      "Replaced five inconsistent component libraries with a single token-based design system, cutting UI bugs by 60% and onboarding time for new engineers in half.",
-    techStack: ["React", "TypeScript", "Storybook", "Tailwind CSS", "Changesets"],
+      "Built a full-stack on-chain messaging app on Ethereum Sepolia — from Solidity smart contract to a polished Next.js frontend with wallet connection, real-time event subscriptions, and a server-side faucet.",
+    techStack: ["Next.js", "TypeScript", "Wagmi", "Viem", "RainbowKit", "Solidity", "Hardhat", "Tailwind CSS"],
+    links: [
+      { label: "GitHub", href: "https://github.com/vladkvlchk/web3-chat" },
+      { label: "Live demo", href: "https://web3-chat-tawny.vercel.app" },
+    ],
+    image: { light: "/web3-chat_preview_light.png", dark: "/web3-chat_preview_dark.png" },
     problem:
-      "The company operated five products under one brand, each built by a separate team over several years. Every product had its own component library — different button styles, inconsistent spacing, conflicting accessibility patterns. Customers noticed. Internal teams wasted hours reconciling designs across products. A rebrand was coming and touching every component in every repo was not viable.",
+      "I wanted to build Web3 applications seriously, not just read about them. Most tutorials stop at connecting a wallet and calling a single contract method. I needed to go through the full cycle — writing and deploying a smart contract, handling transactions and confirmations on the frontend, managing wallet state, and structuring a codebase that could grow into a larger dapp. The goal was to pick a deliberately simple product idea (a chat room) so the focus stayed on the Web3 tooling and architecture rather than business logic.",
     constraints: [
-      "Migration had to be incremental — no big-bang rewrite across five codebases.",
-      "Each team had different release cycles and could not pause feature work.",
-      "The design system had to support both the current brand and the upcoming rebrand without breaking changes.",
-      "Accessibility compliance (WCAG 2.1 AA) was mandatory for regulatory reasons.",
+      "The product had to be simple enough to finish quickly, but the architecture had to be realistic — not a throwaway demo.",
+      "All messages had to live on-chain. No database, no centralized backend for chat data.",
+      "The app had to work for users with zero ETH in their wallet, so a faucet was necessary.",
+      "The frontend had to feel like a real product, not a blockchain experiment with raw transaction hashes.",
     ],
     solution:
-      "I designed and built a token-based component library published as versioned packages via Changesets. The system used design tokens (colors, spacing, typography) as a separate layer, so the rebrand could be applied by swapping a token set rather than changing component code. Each component was built with a composition-first API — primitives that teams could assemble rather than monolithic components with dozens of props. I wrote codemods to automate the most common migration patterns and created an adoption dashboard that tracked each team's progress.",
+      "I wrote a MessageBoard smart contract in Solidity that stores messages (sender address, text, timestamp) on-chain and emits events for real-time updates. I deployed it to Sepolia via Hardhat. On the frontend, I used Next.js 15 with wagmi and viem for all blockchain interactions — reading messages, writing transactions, and subscribing to NewMessage events. RainbowKit handled the wallet connection UX. I built a server-side faucet as a Next.js API route that uses a private key to send test ETH to users, keeping the key secure on the server. The UI was built with shadcn/ui components, Tailwind CSS, and full dark mode support.",
     decisions: [
       {
-        title: "Composition over configuration",
+        title: "Wagmi + viem over ethers.js",
         rationale:
-          "Instead of building components with extensive prop APIs (variant, size, color, icon, loading...), I exposed composable primitives. This reduced the API surface, made components easier to test, and let teams build product-specific patterns without forking the library.",
+          "Wagmi provides React hooks designed specifically for wallet and contract interactions — useReadContract, useWriteContract, useWatchContractEvent. Combined with viem as the transport layer, this gave me type-safe contract calls and better bundle size than ethers.js. I still used ethers on the server for the faucet where React hooks are not available.",
       },
       {
-        title: "Tokens as a separate package",
+        title: "On-chain event subscriptions for real-time UX",
         rationale:
-          "Decoupling tokens from components meant the rebrand was a version bump on the token package, not a coordinated release across all component consumers.",
+          "Instead of polling the contract for new messages, I used useWatchContractEvent to listen to the NewMessage event. This gave near-real-time updates without unnecessary RPC calls and taught me how event-driven architecture works on Ethereum.",
       },
       {
-        title: "Codemods for migration",
+        title: "Atomic component structure",
         rationale:
-          "Writing jscodeshift transforms for the 20 most-used components eliminated 70% of manual migration work and reduced errors during adoption.",
+          "I organized components into atoms, forms, widgets, and providers. Even for a small app, this separation made the codebase navigable and established patterns I can reuse in larger dapps — especially the provider composition pattern for wagmi, RainbowKit, and React Query.",
+      },
+      {
+        title: "Server-side faucet",
+        rationale:
+          "Exposing a private key on the client is not an option. The faucet runs as a Next.js API route that holds the key in an environment variable and sends small amounts of Sepolia ETH. This was a practical lesson in keeping secrets server-side in a Web3 context.",
       },
     ],
     outcome:
-      "All five products adopted the system within four months. UI-related bug reports dropped 60%. New engineers reported reaching productivity faster because there was one set of patterns to learn. The rebrand shipped on schedule by updating a single token package — no component changes required.",
+      "The app is live on Vercel and functional on Sepolia. I came out of this project confident with the full Web3 frontend stack: wagmi for contract hooks, viem for low-level calls, RainbowKit for wallet UX, and Hardhat for contract development and deployment. The codebase is structured to scale — adding new contract interactions or screens is a matter of writing a new hook and composing existing providers. The project directly informed the architecture of the larger dapp I am building now.",
   },
   {
     slug: "ecommerce-performance",
