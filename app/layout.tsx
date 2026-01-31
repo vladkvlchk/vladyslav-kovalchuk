@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   },
   description:
     "Frontend engineer focused on building reliable, performant interfaces for complex products.",
+  icons: {
+    icon: "/me.png",
+    apple: "/me.png",
+  },
   openGraph: {
     title: "Vladyslav Kovalchuk — Frontend Engineer",
     description:
