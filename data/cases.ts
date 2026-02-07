@@ -14,6 +14,60 @@ export interface CaseStudy {
 
 export const cases: CaseStudy[] = [
   {
+    slug: "hyperliquid-asset-router",
+    title: "Building a multi-hop DEX router for Hyperliquid spot trading",
+    summary:
+      "Developed a spot trading interface for Hyperliquid L1 with automatic route discovery, multi-hop execution, and an agent wallet pattern to bypass EIP-712 signing constraints.",
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Wagmi",
+      "Viem",
+      "Privy",
+      "Hyperliquid API",
+      "Tailwind CSS",
+    ],
+    links: [
+      { label: "GitHub", href: "https://github.com/vladkvlchk/hyperliquid-assets-router" },
+      { label: "Live demo", href: "https://hyperliquid-assets-router.vercel.app" },
+    ],
+    image: "/hyperliquid-dex.png",
+    problem:
+      "Hyperliquid is a high-performance L1 built for derivatives trading, but its spot market lacked a user-friendly interface for swapping between assets. Users had to manually identify trading pairs, calculate routes through intermediary tokens (like USDC), and execute each hop separately. Worse, the exchange's signing scheme required chainId 1337 for trade actions, but browser wallets like MetaMask validate that the signing chainId matches the connected chain — Arbitrum (42161) in this case. Every trade attempt failed at the wallet level before reaching the exchange.",
+    constraints: [
+      "Wallet providers enforce EIP-712 chainId validation — there is no way to sign with chainId 1337 while connected to Arbitrum.",
+      "Multi-hop routes had to execute sequentially, with each hop using the output of the previous one.",
+      "Orderbook data had to be fresh for accurate price estimation, but fetching all pairs on every route search was too expensive.",
+      "The solution had to work without requiring users to switch networks or use a custom wallet.",
+    ],
+    solution:
+      "I implemented Hyperliquid's agent wallet pattern: a locally-generated ephemeral keypair that users approve once via a wallet signature (using chainId 42161, which MetaMask accepts). The agent key then signs all trade actions with chainId 1337 directly — no wallet popup, no chainId conflict. For routing, I built a BFS-based pathfinder that discovers the shortest path between any two tokens within 3 hops. To minimize API calls, the router checks for direct pairs first and only fetches orderbooks for relevant intermediary routes (via USDC or HYPE). Multi-hop trades execute sequentially, with each hop's output feeding into the next. The UI shows real-time price estimates, slippage warnings, and supports both market and limit orders with cancellation.",
+    decisions: [
+      {
+        title: "Agent wallet pattern over network switching",
+        rationale:
+          "Asking users to add a custom network or switch chains breaks the flow and causes confusion. The agent wallet lets users stay on Arbitrum while the agent signs L1 actions in the background. The private key lives in localStorage — acceptable for a trading frontend since agents cannot withdraw funds, only place orders.",
+      },
+      {
+        title: "BFS routing over weighted Dijkstra",
+        rationale:
+          "For a 3-hop maximum, BFS finds the shortest path quickly without needing edge weights. A more sophisticated router would weight edges by spread and estimated slippage, but for the current pair set, fewer hops correlates well with lower slippage. This kept the implementation simple and fast.",
+      },
+      {
+        title: "Selective orderbook fetching",
+        rationale:
+          "Initially the router fetched all orderbooks on every search, creating 20+ API requests. I optimized this by checking for a direct pair first (1 request), and only fetching 2-hop routes through common intermediaries if no direct path exists. This reduced average requests from 20+ to 2-4.",
+      },
+      {
+        title: "State machine for trade execution",
+        rationale:
+          "Trade execution has multiple states: discovering, route_found, executing, executed, error. A reducer-based state machine makes transitions explicit and prevents impossible states like showing a result while still executing. It also made adding multi-hop progress tracking straightforward.",
+      },
+    ],
+    outcome:
+      "The router handles any token pair available on Hyperliquid spot, automatically finding routes through up to 3 hops. The agent wallet flow reduced friction significantly — users sign once and can execute unlimited trades without popups. Price estimates update in real-time from live orderbook data, and the UI warns about low liquidity or stale data. The architecture cleanly separates concerns: routing logic, exchange API, signing, and UI state are all independent modules. The project deepened my understanding of exchange-specific signing schemes and the tradeoffs in DEX routing.",
+  },
+  {
     slug: "web3-chat",
     title: "Building a decentralized chat to learn Web3 from the ground up",
     summary:
@@ -94,49 +148,6 @@ export const cases: CaseStudy[] = [
     ],
     outcome:
       "Time to Interactive dropped from 8.2s to 2.8s. Lighthouse performance score went from 34 to 91. Mobile bounce rate decreased 25%. The product team reported that the new architecture made it easier to reason about data flow, and page-level performance budgets were adopted as part of the CI pipeline.",
-  },
-  {
-    slug: "collaboration-saas",
-    title: "Building real-time editing into a project management tool",
-    summary:
-      "Designed and implemented collaborative document editing for a SaaS platform, supporting 50+ concurrent users per document without conflicts or data loss.",
-    techStack: [
-      "React",
-      "TypeScript",
-      "WebSocket",
-      "Yjs",
-      "Tiptap",
-      "Node.js",
-    ],
-    problem:
-      "The project management tool had a document editor, but it was single-user. Teams had to take turns editing, leading to version conflicts and lost work. Users were copying content into Google Docs to collaborate and pasting it back — a workflow that broke formatting and created sync issues. The product team wanted native real-time collaboration, but the existing editor was built on a custom contenteditable implementation that did not support concurrent editing.",
-    constraints: [
-      "The existing document format had to be preserved — migration of thousands of active documents was required.",
-      "Latency had to stay under 100ms for a responsive editing experience.",
-      "The solution needed to work reliably on unstable connections with automatic reconnection and conflict resolution.",
-      "Infrastructure costs had to remain reasonable at scale.",
-    ],
-    solution:
-      "I replaced the custom editor with Tiptap (built on ProseMirror) and integrated Yjs as the CRDT layer for conflict-free real-time synchronization. I built a WebSocket server that managed document sessions, handled presence awareness (cursors, selections), and persisted snapshots to reduce memory usage. For the migration, I wrote a transformer that converted the legacy format to the ProseMirror schema, validated with a diff tool that compared rendered output before and after conversion.",
-    decisions: [
-      {
-        title: "Yjs over operational transform",
-        rationale:
-          "CRDTs like Yjs handle conflicts without a central authority, simplifying the server architecture and making offline editing possible. OT would have required a more complex coordination server.",
-      },
-      {
-        title: "Tiptap over building from scratch",
-        rationale:
-          "ProseMirror's schema system gave us the extensibility we needed. Building a collaborative editor from scratch would have taken months longer and introduced more edge cases than leveraging a battle-tested foundation.",
-      },
-      {
-        title: "Snapshot-based persistence",
-        rationale:
-          "Instead of persisting every CRDT update, the server saves periodic snapshots and replays only recent updates on reconnection. This kept storage costs linear rather than growing with edit frequency.",
-      },
-    ],
-    outcome:
-      "The feature launched to 15,000 active teams. Average concurrent editors per document reached 12, with peak sessions handling 50+ users without degradation. Document-related support tickets dropped 40%. The migration converted 98.7% of documents without manual intervention, and the remaining 1.3% were flagged for review with specific diff reports.",
   },
 ];
 
