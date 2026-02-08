@@ -32,22 +32,12 @@ For this cost to pay off, the function you are memoizing needs to be **more expe
 ## The code I see everywhere
 
 \`\`\`typescript
-const fullName = useMemo(() => {
-  return \`\${user.firstName} \${user.lastName}\`;
-}, [user.firstName, user.lastName]);
+const sizes = useMemo(() => {
+  return product.sizes.sort((a, b) => a - b);
+}, [product.sizes]);
 \`\`\`
 
-String concatenation takes **nanoseconds**. Comparing two dependency values and managing the cache takes longer than just running the concatenation again. This \`useMemo\` makes performance worse, not better.
-
-Here is another one:
-
-\`\`\`typescript
-const isActive = useMemo(() => {
-  return status === "active" && !isArchived;
-}, [status, isArchived]);
-\`\`\`
-
-A boolean comparison. Two equality checks. This is not a computation that needs caching.
+Sorting seven shoe sizes from smallest to largest. Seven numbers. Wrapped in \`useMemo\` with dependency tracking and caching. Just sort them — it takes microseconds.
 
 And the classic:
 
