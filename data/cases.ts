@@ -113,42 +113,6 @@ export const cases: CaseStudy[] = [
     outcome:
       "The app is live on Vercel and functional on Sepolia. I came out of this project confident with the full Web3 frontend stack: wagmi for contract hooks, viem for low-level calls, RainbowKit for wallet UX, and Hardhat for contract development and deployment. The codebase is structured to scale — adding new contract interactions or screens is a matter of writing a new hook and composing existing providers. The project directly informed the architecture of the larger dapp I am building now.",
   },
-  {
-    slug: "ecommerce-performance",
-    title: "Cutting load times in half for a high-traffic product catalog",
-    summary:
-      "Diagnosed and resolved critical performance bottlenecks in a React SPA serving 2M+ monthly visitors, reducing Time to Interactive from 8s to under 3s.",
-    techStack: ["Next.js", "React", "TypeScript", "Lighthouse", "Web Vitals", "Vercel"],
-    problem:
-      "An e-commerce company's product catalog had grown to 50,000+ items. The React SPA loaded everything client-side — heavy JavaScript bundles, unoptimized images, and redundant API calls on every navigation. Lighthouse scores were in the 30s. Mobile users on slower connections were abandoning the site before products rendered. Conversion rates had been declining for two quarters.",
-    constraints: [
-      "The existing codebase was large and tightly coupled — a full rewrite was not feasible.",
-      "The product team needed to continue shipping features during the optimization work.",
-      "Third-party scripts (analytics, A/B testing) could not be removed but needed to be managed.",
-      "The solution had to work within the existing hosting infrastructure.",
-    ],
-    solution:
-      "I migrated the catalog from client-side rendering to Next.js with a hybrid approach: static generation for the top 500 products (80% of traffic), server-side rendering for the long tail, and client-side rendering only for personalized content. I implemented aggressive code splitting, replaced the monolithic state management with targeted data fetching using React Server Components, optimized images with next/image, and deferred third-party scripts. The migration was done route-by-route over six weeks without disrupting feature development.",
-    decisions: [
-      {
-        title: "Hybrid rendering strategy",
-        rationale:
-          "Pure SSG would not scale for 50K products, and pure SSR added unnecessary server load. Analyzing traffic patterns showed 80% of visits hit the top 500 products — static generation for those with SSR fallback was the right tradeoff.",
-      },
-      {
-        title: "Route-by-route migration",
-        rationale:
-          "Instead of migrating everything at once, I started with the highest-traffic pages. This delivered measurable improvements early and built confidence with the team before tackling more complex routes.",
-      },
-      {
-        title: "Server Components for data",
-        rationale:
-          "Moving data fetching to Server Components eliminated waterfall requests on the client and reduced the JavaScript shipped to the browser by 40%.",
-      },
-    ],
-    outcome:
-      "Time to Interactive dropped from 8.2s to 2.8s. Lighthouse performance score went from 34 to 91. Mobile bounce rate decreased 25%. The product team reported that the new architecture made it easier to reason about data flow, and page-level performance budgets were adopted as part of the CI pipeline.",
-  },
 ];
 
 export function getCaseBySlug(slug: string): CaseStudy | undefined {
