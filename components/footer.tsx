@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const links = [
-  { href: "mailto:prostoandrei9@gmail.com", label: "Email" },
+  { href: "mailto:vlad_kvlchk@icloud.com", label: "Email" },
   { href: "https://github.com/vladkvlchk", label: "GitHub" },
   { href: "https://www.linkedin.com/in/vladkvlchk", label: "LinkedIn" },
   { href: "https://www.codewars.com/users/vladkvlchk", label: "Codewars" },

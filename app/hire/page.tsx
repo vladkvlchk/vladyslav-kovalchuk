@@ -87,10 +87,10 @@ export default function HirePage() {
             <li>
               <span className="text-zinc-400 dark:text-zinc-500">Email</span>{" "}
               <a
-                href="mailto:prostoandrei9@gmail.com"
+                href="mailto:vlad_kvlchk@icloud.com"
                 className="text-zinc-900 dark:text-zinc-100 underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:decoration-zinc-900 dark:hover:decoration-zinc-100 transition-colors"
               >
-                prostoandrei9@gmail.com
+                vlad_kvlchk@icloud.com
               </a>
             </li>
             <li>
