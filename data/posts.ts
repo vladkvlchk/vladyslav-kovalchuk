@@ -8,6 +8,204 @@ export interface BlogPost {
 
 export const posts: BlogPost[] = [
   {
+    slug: "race-conditions-in-react-state",
+    title: "Your state updates are lying to you.",
+    summary:
+      "Race conditions in frontend state are silent, hard to reproduce, and everywhere. Most React apps have them. Here is how to find and fix them.",
+    date: "2026-03-22",
+    content: `Race conditions are not a backend problem. They happen in every React app that fetches data, debounces input, or runs anything asynchronous — which is every React app.
+
+The tricky part is that they rarely crash. They just show the wrong data. A search result from a previous query. A form submitted with a stale value. A dashboard that briefly flickers between two states. Users notice. Developers do not, because the bug disappears on the next render.
+
+## The classic: out-of-order responses
+
+This is the most common race condition in React:
+
+\`\`\`typescript
+function UserProfile({ userId }: { userId: string }) {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetch(\\\`/api/users/\\\${userId}\\\`)
+      .then((res) => res.json())
+      .then((data) => setUser(data));
+  }, [userId]);
+
+  return <div>{user?.name}</div>;
+}
+\`\`\`
+
+Click user A. Request goes out. Click user B quickly. Second request goes out. The second request finishes first — you see user B. Then the first request finishes — now you see user A. You are looking at user A's data while the URL says user B.
+
+This happens because \`setUser\` does not know which request it belongs to. It just sets whatever arrives last.
+
+## Fix 1: AbortController
+
+The simplest fix. Cancel the previous request when a new one starts:
+
+\`\`\`typescript
+useEffect(() => {
+  const controller = new AbortController();
+
+  fetch(\\\`/api/users/\\\${userId}\\\`, { signal: controller.signal })
+    .then((res) => res.json())
+    .then((data) => setUser(data))
+    .catch((err) => {
+      if (err.name !== "AbortError") throw err;
+    });
+
+  return () => controller.abort();
+}, [userId]);
+\`\`\`
+
+When \`userId\` changes, the cleanup function aborts the in-flight request. The stale response never reaches \`setUser\`. This is the pattern you should use by default for any fetch inside \`useEffect\`.
+
+## Fix 2: ignore flag
+
+Sometimes you cannot abort the request — maybe it is a third-party SDK call or a WebSocket message. Use a boolean flag instead:
+
+\`\`\`typescript
+useEffect(() => {
+  let ignore = false;
+
+  fetchUser(userId).then((data) => {
+    if (!ignore) setUser(data);
+  });
+
+  return () => {
+    ignore = true;
+  };
+}, [userId]);
+\`\`\`
+
+The stale response still arrives, but you ignore it. React's own documentation recommends this exact pattern. It works, but AbortController is better when available because it also saves bandwidth.
+
+## Stale closures in event handlers
+
+Race conditions are not limited to fetching. They also appear in event handlers that reference stale state:
+
+\`\`\`typescript
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () => {
+    setTimeout(() => {
+      setCount(count + 1); // captures count at the time of click
+    }, 1000);
+  };
+
+  return <button onClick={handleClick}>{count}</button>;
+}
+\`\`\`
+
+Click three times quickly. You expect 3. You get 1. Every click captured \`count\` as 0, so every timeout sets it to 1.
+
+The fix is the functional updater:
+
+\`\`\`typescript
+setCount((prev) => prev + 1);
+\`\`\`
+
+This reads the current state at the time of the update, not at the time the closure was created. Use functional updates whenever your next state depends on the previous state. Always.
+
+## Optimistic updates gone wrong
+
+Optimistic UI is powerful but creates a window where local state and server state diverge. If you do not handle the failure path, the user sees data that was never persisted:
+
+\`\`\`typescript
+const handleLike = async () => {
+  setLiked(true);         // optimistic
+  setLikes((n) => n + 1); // optimistic
+
+  try {
+    await api.likePost(postId);
+  } catch {
+    setLiked(false);          // rollback
+    setLikes((n) => n - 1);   // rollback
+  }
+};
+\`\`\`
+
+This looks correct until the user clicks like, unlikes, and likes again before the first request finishes. Now you have three in-flight mutations and your rollback logic is racing against itself.
+
+The fix: track the request, not just the state:
+
+\`\`\`typescript
+const handleLike = async () => {
+  const nextLiked = !liked;
+  const delta = nextLiked ? 1 : -1;
+
+  setLiked(nextLiked);
+  setLikes((n) => n + delta);
+
+  try {
+    await api.setLikeStatus(postId, nextLiked);
+  } catch {
+    setLiked(!nextLiked);
+    setLikes((n) => n - delta);
+  }
+};
+\`\`\`
+
+Or better — use a library like TanStack Query that manages optimistic updates with proper rollback and request deduplication built in. Do not reinvent this.
+
+## Debounced search with stale results
+
+Another common pattern that hides a race condition:
+
+\`\`\`typescript
+const handleSearch = useMemo(
+  () =>
+    debounce(async (query: string) => {
+      const results = await api.search(query);
+      setResults(results);
+    }, 300),
+  []
+);
+\`\`\`
+
+The debounce prevents excessive requests, but it does not prevent out-of-order responses. If "rea" returns slower than "reac", you type "react", see results for "reac", then results for "rea" overwrite them.
+
+Combine debounce with AbortController:
+
+\`\`\`typescript
+const controllerRef = useRef<AbortController | null>(null);
+
+const handleSearch = useMemo(
+  () =>
+    debounce(async (query: string) => {
+      controllerRef.current?.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+
+      try {
+        const results = await api.search(query, {
+          signal: controller.signal,
+        });
+        setResults(results);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        throw err;
+      }
+    }, 300),
+  []
+);
+\`\`\`
+
+## The general principle
+
+Every race condition in React state follows the same pattern: **an async operation completes and writes to state that has moved on since the operation started**.
+
+The defenses are always one of:
+
+- **Cancel the operation** — AbortController, clearing timeouts, unsubscribing
+- **Ignore the result** — boolean flags, checking if the component is still mounted or the input is still relevant
+- **Use functional updates** — read current state at write time, not at dispatch time
+- **Use the right tool** — TanStack Query, SWR, or similar libraries that solve request lifecycle for you
+
+Most of these are not complex. They are just easy to forget. The hardest part is knowing where to look — and now you know.`,
+  },
+  {
     slug: "stop-using-usememo-everywhere",
     title: "Stop putting useMemo everywhere. Your app is not faster.",
     summary:
