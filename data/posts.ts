@@ -8,6 +8,74 @@ export interface BlogPost {
 
 export const posts: BlogPost[] = [
   {
+    slug: "tanstack-query-zustand-state-separation",
+    title: "TanStack Query and Zustand are not interchangeable. Stop treating them like they are.",
+    summary:
+      "Using TanStack Query for UI state or Zustand for server cache creates subtle bugs and unnecessary complexity. Here is why separation matters and how to do it right.",
+    date: "2026-03-29",
+    content: `State in React applications falls into two fundamentally different categories, and mixing them up is one of the most common sources of unnecessary complexity.
+
+**Server state** is data that lives on the server and is borrowed by the client — user profiles, product lists, order histories. It can become stale, it needs to be refetched, and multiple components may need the same data simultaneously.
+
+**Client state** is local UI state — whether a sidebar is open, which tab is active, a form's current input values. It lives only in the browser and has nothing to do with any server.
+
+## TanStack Query owns server state
+
+TanStack Query was built specifically for server state. It handles caching, background refetching, deduplication, and stale-while-revalidate out of the box. Crucially, it eliminates race conditions by design — concurrent requests for the same query key are automatically deduplicated, and cancellation is handled for you.
+
+\`\`\`typescript
+const { data: user } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+});
+\`\`\`
+
+You do not need \`useEffect\`, you do not need to manage loading flags manually, and you do not need to worry about stale closures overwriting fresh data.
+
+## Zustand owns client state
+
+Zustand is ideal for state that has no server representation. Global UI toggles, multi-step form state, wizard progress, theme preferences — anything that does not need to be fetched, cached, or invalidated.
+
+\`\`\`typescript
+const useUIStore = create<UIStore>((set) => ({
+  sidebarOpen: false,
+  toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+}));
+\`\`\`
+
+It is lightweight, synchronous, and does not pretend to be a data fetching solution.
+
+## Why mixing responsibilities breaks things
+
+If you store server data in Zustand, you take on the entire cache invalidation problem manually — when to refetch, how to handle loading states, how to avoid showing stale data. TanStack Query already solved this. If you push UI state into React Query, you lose the synchronous simplicity that makes Zustand valuable.
+
+## Using both correctly
+
+The pattern is straightforward: fetch with TanStack Query, interact with Zustand.
+
+\`\`\`typescript
+function ProductPage() {
+  // server state — fetched, cached, auto-refreshed
+  const { data: product } = useQuery({
+    queryKey: ['product', productId],
+    queryFn: () => fetchProduct(productId),
+  });
+
+  // client state — local UI only
+  const { selectedTab, setSelectedTab } = useUIStore();
+
+  return (
+    <div>
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} />
+      <ProductDetails product={product} />
+    </div>
+  );
+}
+\`\`\`
+
+Server data flows through React Query. UI interactions flow through Zustand. Neither tool tries to do the other's job. That is the entire principle — keep the responsibilities clear and you get the best of both tools without the downsides of either.`,
+  },
+  {
     slug: "race-conditions-in-react-state",
     title: "Your state updates are lying to you.",
     summary:
