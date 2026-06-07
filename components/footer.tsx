@@ -8,29 +8,33 @@ const links = [
   { href: "https://t.me/vlad_kvlchk", label: "Telegram" },
 ] as const;
 
+// Tight glass halo that keeps footer links legible over the ASCII art.
+const glass =
+  "rounded-md bg-background/60 px-2 py-0.5 backdrop-blur-[2px] transition-colors hover:text-zinc-600 dark:hover:text-zinc-300";
+
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-100 dark:border-zinc-800">
+    <footer className="relative z-10 border-t border-zinc-100 dark:border-zinc-800">
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-6 py-10 text-sm text-zinc-400 dark:text-zinc-500 sm:flex-row sm:justify-between">
-        <nav className="flex gap-6" aria-label="Footer">
-          <Link href="/cases" className="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+        <nav className="flex gap-2" aria-label="Footer">
+          <Link href="/cases" className={glass}>
             Cases
           </Link>
-          <Link href="/blog" className="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+          <Link href="/blog" className={glass}>
             Blog
           </Link>
-          <Link href="/hire" className="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+          <Link href="/hire" className={glass}>
             Hire Me
           </Link>
         </nav>
-        <div className="flex gap-6">
+        <div className="flex flex-wrap justify-center gap-2">
           {links.map(({ href, label }) => (
             <a
               key={href}
               href={href}
               target={href.startsWith("mailto") ? undefined : "_blank"}
               rel={href.startsWith("mailto") ? undefined : "noopener noreferrer"}
-              className="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+              className={glass}
             >
               {label}
             </a>

@@ -53,7 +53,9 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <Header />
-          <main className="mx-auto max-w-3xl px-6">{children}</main>
+          <main className="relative z-10 mx-auto max-w-3xl px-6">
+            {children}
+          </main>
           <Footer />
         </ThemeProvider>
       </body>

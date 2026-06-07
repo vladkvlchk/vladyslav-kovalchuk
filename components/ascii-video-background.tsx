@@ -45,7 +45,7 @@ interface Props {
 export function AsciiVideoBackground({
   src = "/ascii-lilies.json",
   fps,
-  loop = false,
+  loop = true,
 }: Props = {}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -226,7 +226,7 @@ export function AsciiVideoBackground({
       // Small ambient widget in the bottom-right corner. Hidden on phones so
       // it doesn't crowd the hero copy. Color drives the canvas glyph fill
       // via `currentColor`, so theme toggling is automatic.
-      className="pointer-events-none fixed right-4 bottom-4 z-50 hidden aspect-video w-[64rem] text-zinc-700 opacity-50 sm:right-6 sm:bottom-6 sm:block md:w-[72rem] lg:w-[80rem] dark:text-zinc-200"
+      className="pointer-events-none fixed right-4 bottom-0 z-0 hidden aspect-video w-[51rem] text-zinc-700 opacity-30 sm:right-6 sm:block md:w-[57rem] lg:w-[64rem] dark:text-zinc-200"
     >
       <canvas ref={canvasRef} className="block h-full w-full" />
     </div>

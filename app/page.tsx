@@ -5,6 +5,11 @@ import { CaseCard } from "@/components/case-card";
 import { Section } from "@/components/section";
 import { AsciiVideoBackground } from "@/components/ascii-video-background";
 
+// Tight translucent backdrop used on text blocks so the ASCII art behind
+// stays visible but doesn't compromise readability.
+const glass =
+  "inline-block w-fit rounded-md bg-background/60 px-2 py-0.5 backdrop-blur-[2px]";
+
 const focus = [
   {
     title: "Component architecture",
@@ -29,50 +34,55 @@ export default function Home() {
       <AsciiVideoBackground />
       {/* Hero */}
       <section className="pt-20 pb-16 sm:pt-28 sm:pb-20">
-        <div className="-mx-4 rounded-2xl bg-background/50 px-4 py-6 backdrop-blur-sm sm:-mx-6 sm:px-6">
-          <Image
-            src="/me.png"
-            alt="Vladyslav Kovalchuk"
-            width={72}
-            height={72}
-            className="mb-6 rounded-full"
-            priority
-          />
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
-            Frontend engineer building
-            <br className="hidden sm:block" /> interfaces that work.
-          </h1>
-          <p className="mt-4 max-w-xl text-lg leading-relaxed text-zinc-500 dark:text-zinc-400">
-            I help product teams ship reliable, performant web applications.
-            Focused on React, TypeScript, and the kind of frontend architecture
-            that holds up under real-world complexity.
-          </p>
-          <div className="mt-8 flex gap-4">
-            <Link
-              href="/cases"
-              className="inline-flex items-center rounded-full bg-zinc-900 dark:bg-zinc-100 px-5 py-2.5 text-sm font-medium text-white dark:text-zinc-900 transition-colors hover:bg-zinc-700 dark:hover:bg-zinc-300"
-            >
-              View Case Studies
-            </Link>
-            <Link
-              href="/hire"
-              className="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 transition-colors hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-            >
-              Hire Me
-            </Link>
-          </div>
+        <Image
+          src="/me.png"
+          alt="Vladyslav Kovalchuk"
+          width={72}
+          height={72}
+          className="mb-6 rounded-full"
+          priority
+        />
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
+          <span className={glass}>Frontend engineer building</span>
+          <br className="hidden sm:block" />{" "}
+          <span className={glass}>interfaces that work.</span>
+        </h1>
+        <p
+          className={`mt-4 max-w-xl text-lg leading-relaxed text-zinc-500 dark:text-zinc-400 ${glass}`}
+        >
+          I help product teams ship reliable, performant web applications.
+          Focused on React, TypeScript, and the kind of frontend architecture
+          that holds up under real-world complexity.
+        </p>
+        <div className="mt-8 flex gap-4">
+          <Link
+            href="/cases"
+            className="inline-flex items-center rounded-full bg-zinc-900 dark:bg-zinc-100 px-5 py-2.5 text-sm font-medium text-white dark:text-zinc-900 transition-colors hover:bg-zinc-700 dark:hover:bg-zinc-300"
+          >
+            View Case Studies
+          </Link>
+          <Link
+            href="/hire"
+            className="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-700 px-5 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 transition-colors hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+          >
+            Hire Me
+          </Link>
         </div>
       </section>
 
       {/* Focus areas */}
-      <Section title="What I focus on" glass>
+      <Section title="What I focus on" glassTitle>
         <ul className="grid gap-6 sm:grid-cols-3">
           {focus.map((item) => (
             <li key={item.title}>
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              <h3
+                className={`text-sm font-semibold text-zinc-900 dark:text-zinc-100 ${glass}`}
+              >
                 {item.title}
               </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+              <p
+                className={`mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400 ${glass}`}
+              >
                 {item.description}
               </p>
             </li>
@@ -84,7 +94,7 @@ export default function Home() {
       <Section
         title="Selected work"
         subtitle="Problems I have solved for real products."
-        glass
+        glassTitle
       >
         <div className="grid gap-10">
           {cases.map((c) => (
@@ -94,7 +104,7 @@ export default function Home() {
         <div className="mt-10">
           <Link
             href="/cases"
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-100 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+            className={`text-sm font-medium text-zinc-900 dark:text-zinc-100 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors ${glass}`}
           >
             All case studies &rarr;
           </Link>
