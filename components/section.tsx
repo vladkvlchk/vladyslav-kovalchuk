@@ -3,11 +3,19 @@ interface SectionProps {
   title?: string;
   subtitle?: string;
   className?: string;
+  /** Adds a translucent blurred backdrop so text stays readable over busy art. */
+  glass?: boolean;
 }
 
-export function Section({ children, title, subtitle, className }: SectionProps) {
-  return (
-    <section className={`py-16 sm:py-20 ${className ?? ""}`}>
+export function Section({
+  children,
+  title,
+  subtitle,
+  className,
+  glass,
+}: SectionProps) {
+  const inner = (
+    <>
       {(title || subtitle) && (
         <div className="mb-10">
           {title && (
@@ -21,6 +29,17 @@ export function Section({ children, title, subtitle, className }: SectionProps) 
         </div>
       )}
       {children}
+    </>
+  );
+  return (
+    <section className={`py-16 sm:py-20 ${className ?? ""}`}>
+      {glass ? (
+        <div className="-mx-4 rounded-2xl bg-background/50 px-4 py-6 backdrop-blur-sm sm:-mx-6 sm:px-6">
+          {inner}
+        </div>
+      ) : (
+        inner
+      )}
     </section>
   );
 }

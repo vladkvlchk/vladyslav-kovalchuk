@@ -46,6 +46,10 @@ const FPS = Number(argv.fps ?? 24);
 // Optional ffmpeg `crop=W:H:X:Y` applied before scaling.
 // Defaults to the full frame so the entire source video is preserved.
 const CROP = argv.crop ?? "";
+// Optional list of `drawbox=W:H:X:Y` masks. Use a CSV list of `X:Y:W:H` rects;
+// each is painted pure black before scaling. Default covers the Gemini sparkle
+// watermark in the bottom-right of a 1280×720 source.
+const MASK = argv.mask ?? "1130:545:60:110";
 
 // Brightness → glyph ramp.
 // Index 0 = black, last index = brightest.
@@ -72,6 +76,14 @@ function extractRawGrayFrames() {
     let total = 0;
 
     const filters = [];
+    // Mask out watermarks BEFORE crop/scale so the painted rect is in source
+    // pixel space and remains a clean solid-black region after downscale.
+    if (MASK) {
+      for (const rect of MASK.split(",")) {
+        const [x, y, w, h] = rect.split(":");
+        filters.push(`drawbox=x=${x}:y=${y}:w=${w}:h=${h}:color=black@1:t=fill`);
+      }
+    }
     if (CROP) filters.push(`crop=${CROP}`);
     // Lanczos preserves edges better than bilinear when downscaling thin lines
     filters.push(`scale=${COLS}:${ROWS}:flags=lanczos`);
@@ -107,6 +119,7 @@ async function main() {
   console.log(`→ Output:     ${path.relative(projectRoot, OUTPUT)}`);
   console.log(`→ Grid:       ${COLS} cols × ${ROWS} rows @ ${FPS} fps`);
   console.log(`→ Crop:       ${CROP || "(none)"}`);
+  console.log(`→ Mask:       ${MASK || "(none)"}`);
 
   const t0 = Date.now();
   const raw = await extractRawGrayFrames();

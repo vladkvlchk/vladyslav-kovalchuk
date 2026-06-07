@@ -32,6 +32,8 @@ interface Props {
   src?: string;
   /** Override the fps stored in the payload. */
   fps?: number;
+  /** When false, plays once and freezes on the final frame. */
+  loop?: boolean;
 }
 
 /**
@@ -43,6 +45,7 @@ interface Props {
 export function AsciiVideoBackground({
   src = "/ascii-lilies.json",
   fps,
+  loop = false,
 }: Props = {}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -123,16 +126,27 @@ export function AsciiVideoBackground({
     // ----- animation loop -------------------------------------------------
     const tick = (now: number) => {
       if (cancelled) return;
+      // When `loop` is false and we've drawn the final frame, stop scheduling
+      // RAFs — the canvas keeps the last frame painted at zero CPU cost.
+      const lastIdx = frames.length - 1;
+      if (!loop && frameIndex > lastIdx) return;
       rafId = requestAnimationFrame(tick);
       if (!visible) return;
       if (now - lastFrameTime < frameMs) return;
       lastFrameTime = now;
       renderFrame(frames[frameIndex]);
-      frameIndex = (frameIndex + 1) % frames.length;
+      frameIndex = loop ? (frameIndex + 1) % frames.length : frameIndex + 1;
     };
 
     // ----- event handlers -------------------------------------------------
-    const onResize = () => setupCanvasSize();
+    const onResize = () => {
+      setupCanvasSize();
+      // After a finished one-shot playback the loop is idle. Repaint the last
+      // frame so resize doesn't leave a blank canvas.
+      if (!loop && frames.length > 0 && frameIndex > frames.length - 1) {
+        renderFrame(frames[frames.length - 1]);
+      }
+    };
     const onVisibilityChange = () => {
       visible = !document.hidden;
       if (visible) lastFrameTime = 0;
@@ -142,7 +156,12 @@ export function AsciiVideoBackground({
     const themeObserver = new MutationObserver(() => {
       refreshGlyphColor();
       // Repaint current frame immediately so the color flips visibly.
-      if (frames.length > 0) renderFrame(frames[frameIndex]);
+      // With loop:false, frameIndex can sit past the last index — clamp so
+      // we always reference a real frame.
+      if (frames.length > 0) {
+        const idx = Math.min(frameIndex, frames.length - 1);
+        renderFrame(frames[idx]);
+      }
     });
 
     // ----- bootstrap ------------------------------------------------------
