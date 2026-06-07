@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cases } from "@/data/cases";
 import { CaseCard } from "@/components/case-card";
 import { Section } from "@/components/section";
+import { AsciiVideoBackground } from "@/components/ascii-video-background";
 
 const focus = [
   {
@@ -25,6 +26,7 @@ const focus = [
 export default function Home() {
   return (
     <>
+      <AsciiVideoBackground />
       {/* Hero */}
       <section className="pt-20 pb-16 sm:pt-28 sm:pb-20">
         <Image
